@@ -1,115 +1,244 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace OOP_MP1
 {
     internal class Program
-    {
-        static Random rnd = new Random();
-        static int selectedNum = 0;
-        static List<int[]> bingo = new List<int[]>();
-        static List<bool[]> taken = new List<bool[]>();
-        static List<int> drawn = new List<int>();
-        static string userInput = "";
+    { 
+        static List<int> bingo = new List<int>();
+        static List<string> drawn = new List<string>();
+        static bool flag = true;
 
         static void Main(string[] args)
         {
-            run();
-            Console.ReadKey();
+            while (true)
+            { 
+                flag = true;
+                bingo = generateTable();
+                run();
+            }
         }
 
+        /// <summary>
+        /// Keeps the program running until the player decides to reset the board
+        /// </summary>
         static void run()
         {
-            generateTable();
-
-            while (userInput != "end")
+            while (flag)
             {
-                choice();
+                if (bingo.Count == 0)
+                {
+                    results();
+                    reset();
+                }
+                else
+                {
+                    displayboard();
+                    choice();
+                }
+
                 Console.ReadKey();
                 Console.Clear();
             }
-        
         }
 
-        static void generateTable()
+        /// <summary>
+        /// Generates a set of BINGO numbers
+        /// </summary>
+        static List<int> generateTable()
         {
+            for (int i = 1; i < 76; i++)
+            {
+                bingo.Add(i);
+            }
+            
+            return bingo;
+        }
+
+        /// <summary>
+        /// Displays the BINGO numbers
+        /// </summary>
+        static void displayboard()
+        {
+            char[] letter = new char[5] { 'B', 'I', 'N', 'G', 'O' };
+
+            Console.WriteLine("\n" + center("WELCOME TO BINGO!\n"));
+
             for (int i = 0; i < 5; i++)
             {
-                bingo.Add(new int[15]);
+                Console.Write($"  {letter[i]} ");
 
                 for (int j = 0; j < 15; j++)
                 {
-                    bingo[i][j] = (j + (i * 15)) + 1;
-                    Console.Write($"{bingo[i][j]} \t");
+                    int number = (j + (i * 15)) + 1;
+
+                    if (!bingo.Contains(number))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write($"\t{number}");
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write($"\t{number}");
+                    }
+
+                    Console.ResetColor();
                 }
-                Console.WriteLine();
+
+                Console.Write("\n");
             }
+
         }
 
-        static void display()
+        /// <summary>
+        /// Randomly picks the BINGO numbers
+        /// </summary>
+        /// <returns></returns>
+        static int drawNum()
         {
-            foreach (int[] column in bingo)
-            {
-                for (int i = 0; i < 15; i++)
-                { 
-
-                
-                }
-            
-            }
+            Random rnd = new Random();
+            int selectedNum = bingo[rnd.Next(bingo.Count - 1)];
+            bingo.Remove(selectedNum);
+            return selectedNum;
         }
 
-
-        static void drawNum()
-        {
-            selectedNum = rnd.Next(1,76);
-
-            if (selectedNum < 16)
-            {
-                Console.WriteLine($"You have drawn B{selectedNum}");
-            }
-            else if (selectedNum >= 16 && selectedNum < 31)
-            {
-                Console.WriteLine($"You have drawn I{selectedNum}");
-            }
-            else if (selectedNum >= 31 && selectedNum < 46)
-            {
-                Console.WriteLine($"You have drawn N{selectedNum}");
-            }
-            else if (selectedNum >= 46 && selectedNum < 61)
-            {
-                Console.WriteLine($"You have drawn G{selectedNum}");
-            }
-            else if (selectedNum >= 61 && selectedNum < 76)
-            {
-                Console.WriteLine($"You have drawn O{selectedNum}");
-            }
-
-            drawn.Add(selectedNum);
-        }
-
+        /// <summary>
+        /// Give the user a choice and executes it
+        /// </summary>
         static void choice()
         {
-            Console.WriteLine("\nWhat do you want to do?");
-            userInput = Console.ReadLine();
+            Console.WriteLine("\n" + center("What do you want to do?"));
+            Console.WriteLine("\n" + center("[1] DRAW  [2] END"));
+            Console.Write("\n" + center("Response: "));
+            string userInput = Console.ReadLine();
 
             switch (userInput)
             {
                 case "1":
-                    
-                    drawNum();
+                    Console.Write("\n" + center($"You have selected {bingoFormat(drawNum())}"));
                     break;
 
                 case "2":
 
+                    Console.Clear();
+
+                    while (true)
+                    {
+                        results();;
+                        Console.WriteLine("\n" + center("Reset the board?"));
+                        Console.WriteLine("\n" + center("[1] YES  [2] NO"));
+                        Console.Write("\n" + center("Response: "));
+                        userInput = Console.ReadLine();
+
+                        if (userInput == "1")
+                        {
+                            reset();
+                            break;
+                        }
+                        else if (userInput == "2")
+                        {
+                            Console.Write("\n" + center("Resuming the draw."));
+                            break;
+                        }
+                        else
+                        {
+                            Console.Clear();
+                        }
+                    }
                     break;
             }
-
         }
 
+        /// <summary>
+        /// Formats the numbers to its corresponding BINGO placement
+        /// </summary>
+        /// <param name="number"></param>
+        static string bingoFormat(int number)
+        {
+            string format = "";
+            
+            if (number < 16)
+                format = "B" + number.ToString();
 
+            else if (number >= 16 && number < 31)
+                format =  "I" + number.ToString();
+
+            else if (number >= 31 && number < 46)
+                format = "N" + number.ToString();
+
+            else if (number >= 46 && number < 61)
+                format = "G" + number.ToString();
+
+            else if (number >= 61 && number < 76)
+                format = "O" + number.ToString();
+           
+            drawn.Add(format);
+            return format;
+        }
+
+        /// <summary>
+        /// Displays the drawn numbers in order
+        /// </summary>
+        static void results()
+        {
+            Console.WriteLine("\n" + center("List of drawn number:"));
+
+            if (drawn.Count == 0)
+                Console.WriteLine("\n" + center("You haven't drawn any numbers!"));
+            else
+                for (int i = 0; i < drawn.Count; i++)
+                {
+                    if (i % 13 == 12)
+                        Console.WriteLine($"\t{drawn[i]} ");
+                    else
+                        Console.Write($"\t{drawn[i]} ");
+                }
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Resets the whole program
+        /// </summary>
+        /// <returns></returns>
+        static void reset()
+        {
+            Console.Write("\n" + center("Resetting the board...."));
+            flag = false;
+            drawn = new List<string>();
+            bingo = new List<int>();
+        }
+
+        /// <summary>
+        /// Method to center the text
+        /// </summary>
+        /// <param name="words"></param>
+        /// <param name="charLength"></param>
+        /// <returns></returns>
+        static string center(string words, int charLength = 120)
+        {
+            string justify = "";
+            int space = (charLength / 2) - (words.Length / 2);
+            int count = 0;
+
+            for (int i = 0; i < space; i++)
+            {
+                justify += ' ';
+                count++;
+            }
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                justify += words[i];
+                count++;
+            }
+
+            return justify;
+        }
     }
 }
