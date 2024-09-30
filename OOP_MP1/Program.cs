@@ -19,9 +19,22 @@ namespace OOP_MP1
             while (true)
             { 
                 flag = true;
-                bingo = generateTable();
+                bingo = generateNumbers();
                 run();
             }
+        }
+
+        /// <summary>
+        /// Generates a set of BINGO numbers
+        /// </summary>
+        static List<int> generateNumbers()
+        {
+            for (int i = 1; i < 76; i++)
+            {
+                bingo.Add(i);
+            }
+
+            return bingo;
         }
 
         /// <summary>
@@ -45,19 +58,6 @@ namespace OOP_MP1
                 Console.ReadKey();
                 Console.Clear();
             }
-        }
-
-        /// <summary>
-        /// Generates a set of BINGO numbers
-        /// </summary>
-        static List<int> generateTable()
-        {
-            for (int i = 1; i < 76; i++)
-            {
-                bingo.Add(i);
-            }
-            
-            return bingo;
         }
 
         /// <summary>
@@ -94,18 +94,6 @@ namespace OOP_MP1
                 Console.Write("\n");
             }
 
-        }
-
-        /// <summary>
-        /// Randomly picks the BINGO numbers
-        /// </summary>
-        /// <returns></returns>
-        static int drawNum()
-        {
-            Random rnd = new Random();
-            int selectedNum = bingo[rnd.Next(bingo.Count - 1)];
-            bingo.Remove(selectedNum);
-            return selectedNum;
         }
 
         /// <summary>
@@ -156,30 +144,15 @@ namespace OOP_MP1
         }
 
         /// <summary>
-        /// Formats the numbers to its corresponding BINGO placement
+        /// Randomly picks the BINGO numbers
         /// </summary>
-        /// <param name="number"></param>
-        static string bingoFormat(int number)
+        /// <returns></returns>
+        static int drawNum()
         {
-            string format = "";
-            
-            if (number < 16)
-                format = "B" + number.ToString();
-
-            else if (number >= 16 && number < 31)
-                format =  "I" + number.ToString();
-
-            else if (number >= 31 && number < 46)
-                format = "N" + number.ToString();
-
-            else if (number >= 46 && number < 61)
-                format = "G" + number.ToString();
-
-            else if (number >= 61 && number < 76)
-                format = "O" + number.ToString();
-           
-            drawn.Add(format);
-            return format;
+            Random rnd = new Random();
+            int selectedNum = bingo[rnd.Next(bingo.Count - 1)];
+            bingo.Remove(selectedNum);
+            return selectedNum;
         }
 
         /// <summary>
@@ -203,7 +176,7 @@ namespace OOP_MP1
         }
 
         /// <summary>
-        /// Resets the whole program
+        /// Resets the whole board
         /// </summary>
         /// <returns></returns>
         static void reset()
@@ -212,6 +185,34 @@ namespace OOP_MP1
             flag = false;
             drawn = new List<string>();
             bingo = new List<int>();
+        }
+
+
+        /// <summary>
+        /// Formats the numbers to its corresponding BINGO placement
+        /// </summary>
+        /// <param name="number"></param>
+        static string bingoFormat(int number)
+        {
+            string format = "";
+
+            if (number < 16)
+                format = "B" + number.ToString();
+
+            else if (number >= 16 && number < 31)
+                format = "I" + number.ToString();
+
+            else if (number >= 31 && number < 46)
+                format = "N" + number.ToString();
+
+            else if (number >= 46 && number < 61)
+                format = "G" + number.ToString();
+
+            else if (number >= 61 && number < 76)
+                format = "O" + number.ToString();
+
+            drawn.Add(format);
+            return format;
         }
 
         /// <summary>
